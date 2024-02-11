@@ -1,0 +1,26 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Register{% endblock %}
+
+{% block body %}
+
+<div class="block-login m-auto mt-5">
+    
+
+
+    {{ form_start(registrationForm) }}
+        <h1 class="text-center mb-3 h3">Inscription</h1>
+
+        {{ form_row(registrationForm.email) }}
+        {{ form_row(registrationForm.plainPassword) }}
+
+        <div class="d-flex justify-content-center my-3">
+            <button type="submit" class="btn btn-dark">S'inscrire</button>
+        </div>
+        <p class="py-4">Vous êtes déja inscrit? <a href="{{path('app_login')}}"
+                class="text-secondary">Connexion</a></p>
+
+    {{ form_end(registrationForm) }}
+
+    </div>
+{% endblock %}
