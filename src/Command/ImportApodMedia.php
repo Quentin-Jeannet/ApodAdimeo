@@ -51,24 +51,32 @@ class ImportApodMedia extends Command
     {
 
         $apiKey = $_ENV['APOD_API_KEY'];
-        $response = $this->client->request('GET', 'https://api.nasa.gov/planetary/apod?api_key='.$apiKey);
 
-        $apodMedia = new ApodMedia();
-        $apodMedia->setTitle($response->toArray()['title']);
-        $apodMedia->setExplanation($response->toArray()['explanation']);
-        $apodMedia->setDate(new \DateTime($response->toArray()['date']));
-        $apodMedia->setMediaType($response->toArray()['media_type']);
-        if ($response->toArray()['media_type'] === 'image') {
-            $name = $this->downloadImage($response->toArray()['url']);
-            $apodMedia->setMediaName($name);
-        } else {
-            $apodMedia->setMediaName($response->toArray()['url']);
+        try {
+            $response = $this->client->request('GET', 'https://api.nasa.gov/planetary/apod?api_key=' . $apiKey);
+
+            $apodMedia = new ApodMedia();
+            $apodMedia->setTitle($response->toArray()['title']);
+            $apodMedia->setExplanation($response->toArray()['explanation']);
+            $apodMedia->setDate(new \DateTime($response->toArray()['date']));
+            $apodMedia->setMediaType($response->toArray()['media_type']);
+            if ($response->toArray()['media_type'] === 'image') {
+                $name = $this->downloadImage($response->toArray()['url']);
+                $apodMedia->setMediaName($name);
+            } else {
+                $apodMedia->setMediaName($response->toArray()['url']);
+            }
+
+            $this->apodMediaRepository->add($apodMedia);
+
+
+            return Command::SUCCESS;
+        } catch (\Exception $e) {
+            dd($e->getMessage());
+            $output->writeln('Error while fetching the NASA picture of the day : ' . $e->getMessage());
+            return Command::FAILURE;
         }
 
-        $this->apodMediaRepository->add($apodMedia);
-
-
-        return Command::SUCCESS;
     }
 
     /**
