@@ -4,11 +4,14 @@
 namespace App\Command;
 
 use App\Entity\ApodMedia;
+use PhpParser\Builder\Param;
+use Psr\Container\ContainerInterface;
 use App\Repository\ApodMediaRepository;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
+use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 
 /**
  * Commande pour importer l'image du jour de la NASA
@@ -20,11 +23,13 @@ class ImportApodMedia extends Command
 
     private HttpClientInterface $client;
     private ApodMediaRepository $apodMediaRepository;
+    private ParameterBagInterface $parameterBag;
 
-    public function __construct(HttpClientInterface $client, ApodMediaRepository $apodMediaRepository)
+    public function __construct(HttpClientInterface $client, ApodMediaRepository $apodMediaRepository, ParameterBagInterface $parameterBag)
     {
         $this->client = $client;
         $this->apodMediaRepository = $apodMediaRepository;
+        $this->parameterBag = $parameterBag;
         
         parent::__construct();
     }
@@ -50,7 +55,7 @@ class ImportApodMedia extends Command
     protected function execute(InputInterface $input, OutputInterface $output) : int
     {
 
-        $apiKey = $_ENV['APOD_API_KEY'];
+        $apiKey = $this->parameterBag->get('ApodApiKey');
 
         try {
             $response = $this->client->request('GET', 'https://api.nasa.gov/planetary/apod?api_key=' . $apiKey);
@@ -72,7 +77,6 @@ class ImportApodMedia extends Command
 
             return Command::SUCCESS;
         } catch (\Exception $e) {
-            dd($e->getMessage());
             $output->writeln('Error while fetching the NASA picture of the day : ' . $e->getMessage());
             return Command::FAILURE;
         }

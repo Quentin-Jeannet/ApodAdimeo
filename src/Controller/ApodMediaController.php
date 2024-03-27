@@ -22,4 +22,14 @@ class ApodMediaController extends AbstractController
             'apodMedia' => $apodMedia
         ]);
     }
+
+    /**
+     * Affiche l'image du jour de la NASA
+     * @Route("/test", name="test")
+     */
+    public function test(ApodMediaRepository $apodMediaRepository): Response
+    {
+        // return $this->redirectToRoute('apod_picture');
+        return $this->forward('/apod');
+    }
 }
